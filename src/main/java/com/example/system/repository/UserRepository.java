@@ -8,4 +8,6 @@ public interface UserRepository {
     List<User> getUsers();
 
     User createUser(User user);
+
+    User getUser(Integer id);
 }

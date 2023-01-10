@@ -1,8 +1,10 @@
 package com.example.system.repository;
 
+import com.example.system.exception.ResourceNotFoundException;
 import com.example.system.model.User;
 import com.example.system.repository.utils.UserRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.util.List;
+
 
 @Repository("rideRepository")
 public class UserRepositoryImpl implements UserRepository {
@@ -19,18 +22,22 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public List<User> getUsers() {
-        List<User> users = jdbcTemplate.query("select * from users", new UserRowMapper());
-        return users;
+        return jdbcTemplate.query("select * from users", new UserRowMapper());
     }
 
+    @Override
     public User getUser(Integer id) {
-        User user = jdbcTemplate.queryForObject("select * from users where id=?", new UserRowMapper(), id);
+        User user;
+        try {
+            user = jdbcTemplate.queryForObject("select * from users where id=?", new UserRowMapper(), id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResourceNotFoundException("A user with id " + id + " does not exist");
+        }
         return user;
     }
 
     @Override
     public User createUser(User user) {
-//        jdbcTemplate.update("insert into users (name) values (?) ", user.getName());
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement("insert into users (name) values (?) ", new String[]{"id"});
