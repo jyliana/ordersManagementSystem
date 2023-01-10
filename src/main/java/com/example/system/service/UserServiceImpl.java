@@ -17,4 +17,9 @@ public class UserServiceImpl implements UserService {
     public List<User> getUsers() {
         return userRepository.getUsers();
     }
+
+    @Override
+    public User createUser(User user) {
+        return userRepository.createUser(user);
+    }
 }

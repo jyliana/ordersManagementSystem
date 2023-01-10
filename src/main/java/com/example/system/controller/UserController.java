@@ -4,6 +4,7 @@ import com.example.system.model.User;
 import com.example.system.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -19,5 +20,10 @@ public class UserController {
     @RequestMapping(value="/users", method= RequestMethod.GET)
     public @ResponseBody List<User> getUsers(){
         return userService.getUsers();
+    }
+
+    @RequestMapping(value = "/user", method = RequestMethod.POST)
+    public @ResponseBody User createUser(@RequestBody User user) {
+        return userService.createUser(user);
     }
 }
