@@ -1,6 +1,5 @@
 package com.example.system.controller;
 
-import com.example.system.exception.ResourceNotFoundException;
 import com.example.system.model.User;
 import com.example.system.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,13 +32,8 @@ public class UserController {
     }
 
     @GetMapping("/user/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Integer id) throws ResourceNotFoundException {
-        try {
-            User user = userService.getUser(id);
-            return ResponseEntity.ok(user);
-        } catch (Exception e) {
-            System.err.println("hkhsdfsf");
-        }
-        return ResponseEntity.ok(null);
+    public ResponseEntity<User> getUserById(@PathVariable Integer id) {
+        User user = userService.getUser(id);
+        return ResponseEntity.ok(user);
     }
 }

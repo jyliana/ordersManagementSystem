@@ -14,7 +14,7 @@ import java.sql.PreparedStatement;
 import java.util.List;
 
 
-@Repository("rideRepository")
+@Repository("userRepository")
 public class UserRepositoryImpl implements UserRepository {
 
     @Autowired
