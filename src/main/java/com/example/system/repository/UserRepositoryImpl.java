@@ -22,14 +22,14 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public List<User> getUsers() {
-        return jdbcTemplate.query("select * from users", new UserRowMapper());
+        return jdbcTemplate.query("SELECT * FROM users ORDER BY id", new UserRowMapper());
     }
 
     @Override
     public User getUser(Integer id) {
         User user;
         try {
-            user = jdbcTemplate.queryForObject("select * from users where id=?", new UserRowMapper(), id);
+            user = jdbcTemplate.queryForObject("SELECT * FROM users WHERE id=?", new UserRowMapper(), id);
         } catch (EmptyResultDataAccessException e) {
             throw new ResourceNotFoundException("A user with id " + id + " does not exist");
         }
@@ -40,13 +40,13 @@ public class UserRepositoryImpl implements UserRepository {
     public User createUser(User user) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
-            PreparedStatement ps = con.prepareStatement("insert into users (name) values (?) ", new String[]{"id"});
+            PreparedStatement ps = con.prepareStatement("INSERT INTO users (name) VALUES (?) ", new String[]{"id"});
             ps.setString(1, user.getName());
             return ps;
         }, keyHolder);
 
-        Number id = keyHolder.getKey();
-        return getUser(id.intValue());
+        Integer id = keyHolder.getKey().intValue();
+        return getUser(id);
     }
 
 }

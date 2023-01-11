@@ -17,4 +17,19 @@ public class OrderServiceImpl implements OrderService {
     public List<Order> getOrders() {
         return orderRepository.getOrders();
     }
+
+    @Override
+    public Order createOrder(Integer id, Order order) {
+        return orderRepository.createOrder(id, order);
+    }
+
+    @Override
+    public Order getOrder(Integer id) {
+        return orderRepository.getOrder(id);
+    }
+
+    @Override
+    public Order deleteOrder(Integer id) {
+        return orderRepository.deleteOrder(id);
+    }
 }
