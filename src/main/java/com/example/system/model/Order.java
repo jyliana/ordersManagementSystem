@@ -23,7 +23,7 @@ import java.sql.Date;
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Integer id;
 
     @Column(name = "trade_date")
     private Date tradeDate;

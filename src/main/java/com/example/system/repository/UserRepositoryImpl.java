@@ -27,13 +27,11 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User getUser(Integer id) {
-        User user;
         try {
-            user = jdbcTemplate.queryForObject("SELECT * FROM users WHERE id=?", new UserRowMapper(), id);
+            return jdbcTemplate.queryForObject("SELECT * FROM users WHERE id=?", new UserRowMapper(), id);
         } catch (EmptyResultDataAccessException e) {
             throw new ResourceNotFoundException("A user with id " + id + " does not exist");
         }
-        return user;
     }
 
     @Override
