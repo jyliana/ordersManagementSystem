@@ -11,7 +11,9 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @Repository("userRepository")
@@ -35,6 +37,13 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public List<User> getUsersWithoutOrders() {
+        return jdbcTemplate.query("SELECT u.id, u.name FROM users u\n" +
+                "LEFT JOIN orders_history h ON u.id=h.user_id\n" +
+                "WHERE h.user_id IS NULL", new UserRowMapper());
+    }
+
+    @Override
     public User createUser(User user) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
@@ -45,6 +54,28 @@ public class UserRepositoryImpl implements UserRepository {
 
         Integer id = keyHolder.getKey().intValue();
         return getUser(id);
+    }
+
+    @Override
+    public Map<User, Long> getUsersSortedByAmountOfOrders() {
+        List<Map<String, Object>> maps = jdbcTemplate.queryForList(
+                "SELECT u.id, u.name, SUM(o.amount) \"sum\" FROM orders_history h\n" +
+                        "JOIN users u ON u.id=h.user_id\n" +
+                        "JOIN orders o ON o.id=h.order_id\n" +
+                        "GROUP BY u.id\n" +
+                        "ORDER BY \"sum\" DESC");
+
+        Map<User, Long> users = new LinkedHashMap<>();
+        maps.forEach(row -> {
+                    User user = User.builder()
+                            .id((Integer) row.get("id"))
+                            .name((String) row.get("name"))
+                            .build();
+
+                    users.put(user, (Long) row.get("sum"));
+                }
+        );
+        return users;
     }
 
 }

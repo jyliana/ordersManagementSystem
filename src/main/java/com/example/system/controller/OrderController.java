@@ -49,16 +49,22 @@ public class OrderController {
         return orderService.getValidSortedOrdersByUserId(id);
     }
 
+    // All users with orders sorted by trade date
+    @GetMapping("/usersWithOrders")
+    public @ResponseBody Map<User, List<Order>> getUsersWithOrders() {
+        return orderService.getUsersWithOrders();
+    }
+
+    // All users with orders with the specific status
+    @GetMapping("/usersWithOrdersWithStatus/{status}")
+    public @ResponseBody Map<User, List<Order>> getUsersWithOrdersWithStatus(@PathVariable String status) {
+        return orderService.getUsersWithOrdersWithStatus(status);
+    }
+
     // Sum of all user’s orders
     @GetMapping("/sumOfAllOrders/user/{id}")
     public ResponseEntity<String> getSumOfAllOrdersByUserId(@PathVariable Integer id) {
         Integer sum = orderService.getSumOfAllOrdersByUserId(id);
         return ResponseEntity.ok(String.format("Sum of all orders for the user id %s: %d", id, sum));
-    }
-
-    // All users with orders sorted by trade date
-    @GetMapping("/allUsersWithOrders")
-    public @ResponseBody Map<User, List<Order>> getAllUsersWithOrders() {
-        return orderService.getUsersWithOrders();
     }
 }

@@ -50,4 +50,9 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.getUsersWithOrders();
     }
 
+    @Override
+    public Map<User, List<Order>> getUsersWithOrdersWithStatus(String status) {
+        return orderRepository.getUsersWithOrdersWithStatus(status);
+    }
+
 }

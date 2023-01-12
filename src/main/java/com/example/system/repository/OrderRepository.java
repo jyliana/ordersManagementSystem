@@ -21,4 +21,6 @@ public interface OrderRepository {
     Integer getSumOfAllOrdersByUserId(Integer id);
 
     Map<User, List<Order>> getUsersWithOrders();
+
+    Map<User, List<Order>> getUsersWithOrdersWithStatus(String status);
 }

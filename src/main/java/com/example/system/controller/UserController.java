@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class UserController {
@@ -23,6 +24,19 @@ public class UserController {
     public @ResponseBody
     List<User> getAllUsers() {
         return userService.getUsers();
+    }
+
+    // All users without orders
+    @GetMapping("/usersWithoutOrders")
+    public @ResponseBody
+    List<User> getAllUsersWithoutOrders() {
+        return userService.getUsersWithoutOrders();
+    }
+
+    // // User’s sorted by sum of amounts of all orders
+    @GetMapping("/usersSortedByAmountOfOrders")
+    public @ResponseBody Map<User, Long> getUsersSortedByAmountOfOrders() {
+        return userService.getUsersSortedByAmountOfOrders();
     }
 
     @PostMapping("/user")
