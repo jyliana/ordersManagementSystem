@@ -1,10 +1,9 @@
 package com.example.system.repository;
 
 import com.example.system.model.Order;
-import com.example.system.model.User;
+import com.example.system.model.UserOrder;
 
 import java.util.List;
-import java.util.Map;
 
 public interface OrderRepository {
 
@@ -20,7 +19,5 @@ public interface OrderRepository {
 
     Integer getSumOfAllOrdersByUserId(Integer id);
 
-    Map<User, List<Order>> getUsersWithOrders();
-
-    Map<User, List<Order>> getUsersWithOrdersWithStatus(String status);
+    List<UserOrder> getUsersWithOrdersWithStatus(String status);
 }

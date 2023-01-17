@@ -1,7 +1,7 @@
 package com.example.system.controller;
 
 import com.example.system.model.Order;
-import com.example.system.model.User;
+import com.example.system.model.UserOrder;
 import com.example.system.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 public class OrderController {
@@ -47,20 +46,19 @@ public class OrderController {
 
     // All users with orders sorted by trade date
     @GetMapping("/usersWithOrders")
-    public Map<User, List<Order>> getUsersWithOrders() {
+    public List<UserOrder> getUsersWithOrders() {
         return orderService.getUsersWithOrders();
     }
 
     // All users with orders with the specific status
     @GetMapping("/usersWithOrdersWithStatus/{status}")
-    public Map<User, List<Order>> getUsersWithOrdersWithStatus(@PathVariable String status) {
+    public List<UserOrder> getUsersWithOrdersWithStatus(@PathVariable String status) {
         return orderService.getUsersWithOrdersWithStatus(status);
     }
 
     // Sum of all user’s orders
     @GetMapping("/sumOfAllOrders/user/{id}")
-    public String getSumOfAllOrdersByUserId(@PathVariable Integer id) {
-        Integer sum = orderService.getSumOfAllOrdersByUserId(id);
-        return String.format("Sum of all orders for the user with id %s: %d", id, sum);
+    public Integer getSumOfAllOrdersByUserId(@PathVariable Integer id) {
+        return orderService.getSumOfAllOrdersByUserId(id);
     }
 }

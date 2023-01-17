@@ -2,9 +2,9 @@ package com.example.system.repository;
 
 import com.example.system.exception.ResourceNotFoundException;
 import com.example.system.model.Order;
-import com.example.system.model.User;
-import com.example.system.model.enums.Status;
+import com.example.system.model.UserOrder;
 import com.example.system.repository.utils.OrderRowMapper;
+import com.example.system.repository.utils.UserOrderRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -13,12 +13,8 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Date;
 import java.sql.PreparedStatement;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 @Repository("orderRepository")
 public class OrderRepositoryImpl implements OrderRepository {
@@ -93,56 +89,14 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
-    public Map<User, List<Order>> getUsersWithOrders() {
-        List<Map<String, Object>> maps = jdbcTemplate.queryForList(
-                "SELECT u.id, u.name, o.id \"order_id\", o.trade_date, o.amount, o.status FROM orders_history h\n" +
-                        "JOIN users u ON u.id=h.user_id\n" +
-                        "JOIN orders o ON o.id=h.order_id\n" +
-                        "ORDER BY o.trade_date");
-
-        return getResultUserMap(maps);
-    }
-
-
-    @Override
-    public Map<User, List<Order>> getUsersWithOrdersWithStatus(String status) {
+    public List<UserOrder> getUsersWithOrdersWithStatus(String status) {
         try {
-            List<Map<String, Object>> maps = jdbcTemplate.queryForList(
-                    "SELECT u.id, u.name, o.id \"order_id\", o.trade_date, o.amount, o.status FROM orders_history h\n" +
-                            "JOIN users u ON u.id=h.user_id\n" +
-                            "JOIN orders o ON o.id=h.order_id\n" +
-                            "where o.status=?::order_status", status.toUpperCase());
-            return getResultUserMap(maps);
+            return jdbcTemplate.query("SELECT u.id \"user_id\", u.name, o.id \"order_id\", o.trade_date, o.amount, o.status FROM orders_history h\n" +
+                    "JOIN users u ON u.id=h.user_id\n" +
+                    "JOIN orders o ON o.id=h.order_id\n" +
+                    "where o.status=?::order_status", new UserOrderRowMapper(), status.toUpperCase());
         } catch (DataIntegrityViolationException e) {
             throw new ResourceNotFoundException("The status " + status + " does not exist");
-        }
-    }
-
-    private static Map<User, List<Order>> getResultUserMap(List<Map<String, Object>> maps) {
-        Map<User, List<Order>> result = new LinkedHashMap<>();
-        maps.forEach(row -> getUsersWithOrders(result, row));
-        return result;
-    }
-
-    private static void getUsersWithOrders(Map<User, List<Order>> result, Map<String, Object> row) {
-        User user = User.builder()
-                .id((Integer) row.get("id"))
-                .name((String) row.get("name"))
-                .build();
-
-        Order order = Order.builder()
-                .id((Integer) row.get("order_id"))
-                .tradeDate((Date) row.get("trade_date"))
-                .amount((Integer) row.get("amount"))
-                .status(Status.valueOf(row.get("status").toString()))
-                .build();
-
-        if (null == result.get(user)) {
-            result.put(user, List.of(order));
-        } else {
-            List<Order> orders = new ArrayList<>(result.get(user));
-            orders.add(order);
-            result.put(user, orders);
         }
     }
 }

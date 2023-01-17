@@ -1,6 +1,8 @@
 package com.example.system.service;
 
+import com.example.system.exception.ResourceNotFoundException;
 import com.example.system.model.User;
+import com.example.system.repository.UserJpaRepository;
 import com.example.system.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,9 +16,12 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private UserJpaRepository userJpaRepository;
+
     @Override
     public List<User> getUsers() {
-        return userRepository.getUsers();
+        return userJpaRepository.getUsers();
     }
 
     @Override
@@ -26,7 +31,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUser(Integer id) {
-        return userRepository.getUser(id);
+        User user = userJpaRepository.getUser(id);
+        if (null == user) {
+            throw new ResourceNotFoundException("A user with id " + id + " does not exist");
+        } else {
+            return user;
+        }
     }
 
     @Override

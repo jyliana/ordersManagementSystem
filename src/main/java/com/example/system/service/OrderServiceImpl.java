@@ -1,23 +1,41 @@
 package com.example.system.service;
 
+import com.example.system.exception.ResourceNotFoundException;
 import com.example.system.model.Order;
-import com.example.system.model.User;
+import com.example.system.model.UserOrder;
+import com.example.system.repository.OrderJpaRepository;
 import com.example.system.repository.OrderRepository;
+import com.example.system.repository.UserOrderJpaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 
 @Service("orderService")
 public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private OrderRepository orderRepository;
+    @Autowired
+    private OrderJpaRepository orderJpaRepository;
+
+    @Autowired
+    private UserOrderJpaRepository userOrderJpaRepository;
 
     @Override
     public List<Order> getOrders() {
-        return orderRepository.getOrders();
+        return orderJpaRepository.getOrders(Sort.by("id"));
+    }
+
+    @Override
+    public Order getOrder(Integer id) {
+        Order order = orderJpaRepository.getOrder(id);
+        if (null == order) {
+            throw new ResourceNotFoundException("An order with id " + id + " does not exist");
+        } else {
+            return order;
+        }
     }
 
     @Override
@@ -25,10 +43,6 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.createOrder(id, order);
     }
 
-    @Override
-    public Order getOrder(Integer id) {
-        return orderRepository.getOrder(id);
-    }
 
     @Override
     public Order deleteOrder(Integer id) {
@@ -46,12 +60,12 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Map<User, List<Order>> getUsersWithOrders() {
-        return orderRepository.getUsersWithOrders();
+    public List<UserOrder> getUsersWithOrders() {
+        return userOrderJpaRepository.getUsersWithOrders();
     }
 
     @Override
-    public Map<User, List<Order>> getUsersWithOrdersWithStatus(String status) {
+    public List<UserOrder> getUsersWithOrdersWithStatus(String status) {
         return orderRepository.getUsersWithOrdersWithStatus(status);
     }
 
