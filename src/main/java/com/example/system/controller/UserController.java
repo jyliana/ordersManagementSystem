@@ -2,20 +2,21 @@ package com.example.system.controller;
 
 import com.example.system.model.User;
 import com.example.system.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
 @RestController
+@AllArgsConstructor
 public class UserController {
 
-    @Autowired
     private UserService userService;
 
     @GetMapping("/users")
@@ -36,7 +37,7 @@ public class UserController {
 
     // // User’s sorted by sum of amounts of all orders
     @GetMapping("/usersSortedByAmountOfOrders")
-    public List<Map<String, Object>> getUsersSortedByAmountOfOrders() {
+    public Map<User, BigInteger> getUsersSortedByAmountOfOrders() {
         return userService.getUsersSortedByAmountOfOrders();
     }
 

@@ -1,7 +1,6 @@
 package com.example.system.controller;
 
 import com.example.system.model.Order;
-import com.example.system.model.UserOrder;
 import com.example.system.model.enums.Status;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -15,7 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.sql.Date;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -24,6 +25,7 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 @TestMethodOrder(OrderAnnotation.class)
 class OrderControllerTest {
     private static final String URL_PORT = "http://localhost:8080/";
+    private static final Status STATUS = Status.DELETED;
     private RestTemplate restTemplate;
     private static Integer createdOrderId;
 
@@ -44,16 +46,19 @@ class OrderControllerTest {
     @Test
     @Timeout(value = 3000, unit = TimeUnit.MILLISECONDS)
     void testGetUsersWithOrders() {
-        ResponseEntity<List<UserOrder>> orderResponse = restTemplate.exchange(URL_PORT + "usersWithOrders", HttpMethod.GET,
+        ResponseEntity<Map<Object, List<Order>>> orderResponse = restTemplate.exchange(URL_PORT + "usersWithOrders", HttpMethod.GET,
                 null, new ParameterizedTypeReference<>() {
                 });
 
-        List<UserOrder> userOrders = orderResponse.getBody().subList(0, 1);
+        Collection<List<Order>> values = orderResponse.getBody().values();
+        boolean resultOfAllStatuses = values.stream().allMatch(m -> m.stream().allMatch(order -> {
+            Status status = order.getStatus();
+            return status.equals(STATUS) || status.equals(Status.VALID);
+        }));
+
         assertSoftly(softly -> {
-            UserOrder userOrder = userOrders.get(0);
-            softly.assertThat(userOrders).isNotNull();
-            softly.assertThat(userOrder).isExactlyInstanceOf(UserOrder.class);
-            softly.assertThat(userOrder.getStatus()).isIn(Status.VALID, Status.DELETED);
+            softly.assertThat(values).isNotNull();
+            softly.assertThat(resultOfAllStatuses).isTrue();
         });
 
     }
@@ -73,15 +78,18 @@ class OrderControllerTest {
     @Test
     @Timeout(value = 3000, unit = TimeUnit.MILLISECONDS)
     void testGetUsersWithOrdersWithStatus() {
-        ResponseEntity<List<UserOrder>> orderResponse = restTemplate.exchange(URL_PORT + "usersWithOrdersWithStatus/deleted", HttpMethod.GET,
+        ResponseEntity<Map<Object, List<Order>>> orderResponse = restTemplate.exchange(
+                URL_PORT + "usersWithOrdersWithStatus/" + STATUS.name(), HttpMethod.GET,
                 null, new ParameterizedTypeReference<>() {
                 });
-        List<UserOrder> userOrders = orderResponse.getBody();
+
+        Collection<List<Order>> values = orderResponse.getBody().values();
+
+        boolean resultOfAllStatuses = values.stream().allMatch(m -> m.stream().allMatch(order -> order.getStatus().equals(STATUS)));
+
         assertSoftly(softly -> {
-            UserOrder userOrder = userOrders.get(0);
-            softly.assertThat(userOrders).isNotNull();
-            softly.assertThat(userOrder).isExactlyInstanceOf(UserOrder.class);
-            softly.assertThat(userOrder.getStatus()).isEqualTo(Status.DELETED);
+            softly.assertThat(orderResponse.getBody().isEmpty()).isFalse();
+            softly.assertThat(resultOfAllStatuses).isTrue();
         });
     }
 
@@ -133,7 +141,7 @@ class OrderControllerTest {
         List<Order> orders = orderResponse.getBody();
 
         assertSoftly(softly -> {
-                    softly.assertThat(orderResponse.getStatusCode().is2xxSuccessful());
+                    softly.assertThat(orderResponse.getStatusCode().is2xxSuccessful()).isTrue();
                     softly.assertThat(orders).isNotNull();
                     softly.assertThat(orders).isNotEmpty();
                     softly.assertThat(orders.get(0)).isExactlyInstanceOf(Order.class);

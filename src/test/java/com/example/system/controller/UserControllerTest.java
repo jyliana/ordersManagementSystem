@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collection;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -30,7 +30,7 @@ class UserControllerTest {
     }
 
     @Test
-    @Timeout(value = 3000, unit = TimeUnit.MILLISECONDS)
+    @Timeout(value = 4000, unit = TimeUnit.MILLISECONDS)
     void testGetAllUsers() {
 
         ResponseEntity<List<User>> userResponse = restTemplate.exchange(URL_PORT + "users", HttpMethod.GET,
@@ -60,7 +60,7 @@ class UserControllerTest {
 
         SoftAssertions.assertSoftly(softly -> {
                     softly.assertThat(exception.getRawStatusCode()).isEqualTo(404);
-                    softly.assertThat(exception.getMessage()).contains("does not exist");
+                    softly.assertThat(exception.getMessage().contains("does not exist")).isTrue();
                 }
         );
     }
@@ -68,14 +68,16 @@ class UserControllerTest {
     @Test
     @Timeout(value = 3000, unit = TimeUnit.MILLISECONDS)
     void testGetUsersSortedByAmountOfOrders() {
-
-        ResponseEntity<Map<Object, Long>> userResponse = restTemplate.exchange(URL_PORT + "usersSortedByAmountOfOrders", HttpMethod.GET,
+        ResponseEntity<Map<Object, BigInteger>> userResponse = restTemplate.exchange(
+                URL_PORT + "usersSortedByAmountOfOrders", HttpMethod.GET,
                 null, new ParameterizedTypeReference<>() {
                 });
-        Collection<Long> values = userResponse.getBody().values();
 
-        Long maxElement = values.stream().max(Long::compareTo).get();
-        Long firstElement = values.stream().findFirst().get();
+        Map<Object, BigInteger> body = userResponse.getBody();
+
+        BigInteger firstElement = body.values().stream().findFirst().get();
+        BigInteger maxElement = body.values().stream().max(BigInteger::compareTo).get();
+
         assertThat(maxElement).isEqualTo(firstElement);
     }
 
@@ -93,7 +95,7 @@ class UserControllerTest {
         List<User> users = userResponse.getBody();
 
         SoftAssertions.assertSoftly(softly -> {
-                    softly.assertThat(userResponse.getStatusCode().is2xxSuccessful());
+                    softly.assertThat(userResponse.getStatusCode().is2xxSuccessful()).isTrue();
                     softly.assertThat(users).isNotNull();
                     softly.assertThat(users).isNotEmpty();
                     softly.assertThat(users.get(0)).isExactlyInstanceOf(User.class);

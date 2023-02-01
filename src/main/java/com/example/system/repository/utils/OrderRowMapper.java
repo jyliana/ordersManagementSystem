@@ -10,11 +10,11 @@ import java.sql.SQLException;
 public class OrderRowMapper implements RowMapper<Order> {
     @Override
     public Order mapRow(ResultSet rs, int rowNum) throws SQLException {
-        Order order = new Order();
-        order.setId(rs.getInt("id"));
-        order.setTradeDate(rs.getDate("trade_date"));
-        order.setAmount(rs.getInt("amount"));
-        order.setStatus(Status.valueOf(rs.getString("status")));
-        return order;
+        return Order.builder()
+                .id(rs.getInt("id"))
+                .tradeDate(rs.getDate("trade_date"))
+                .amount(rs.getInt("amount"))
+                .status(Status.valueOf(rs.getString("status")))
+                .build();
     }
 }

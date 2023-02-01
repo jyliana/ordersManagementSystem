@@ -2,11 +2,8 @@ package com.example.system.repository;
 
 import com.example.system.exception.ResourceNotFoundException;
 import com.example.system.model.Order;
-import com.example.system.model.UserOrder;
 import com.example.system.repository.utils.OrderRowMapper;
-import com.example.system.repository.utils.UserOrderRowMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
+import lombok.AllArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -17,9 +14,9 @@ import java.sql.PreparedStatement;
 import java.util.List;
 
 @Repository("orderRepository")
+@AllArgsConstructor
 public class OrderRepositoryImpl implements OrderRepository {
 
-    @Autowired
     private JdbcTemplate jdbcTemplate;
 
     @Override
@@ -60,12 +57,12 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
-    public Order deleteOrder(Integer id) {
+    public Integer deleteOrder(Integer id) {
         int update = jdbcTemplate.update("UPDATE orders SET status = 'DELETED' WHERE id=?", id);
         if (update != 1) {
             throw new ResourceNotFoundException("An order with id " + id + " does not exist");
         }
-        return getOrder(id);
+        return id;
     }
 
     @Override
@@ -86,17 +83,5 @@ public class OrderRepositoryImpl implements OrderRepository {
                         "JOIN users u ON u.id=h.user_id\n" +
                         "JOIN orders o ON o.id=h.order_id\n" +
                         "WHERE u.id=?", Integer.class, id);
-    }
-
-    @Override
-    public List<UserOrder> getUsersWithOrdersWithStatus(String status) {
-        try {
-            return jdbcTemplate.query("SELECT u.id \"user_id\", u.name, o.id \"order_id\", o.trade_date, o.amount, o.status FROM orders_history h\n" +
-                    "JOIN users u ON u.id=h.user_id\n" +
-                    "JOIN orders o ON o.id=h.order_id\n" +
-                    "where o.status=?::order_status", new UserOrderRowMapper(), status.toUpperCase());
-        } catch (DataIntegrityViolationException e) {
-            throw new ResourceNotFoundException("The status " + status + " does not exist");
-        }
     }
 }

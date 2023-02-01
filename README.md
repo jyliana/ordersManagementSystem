@@ -30,6 +30,25 @@ Create methods that will return next orders:
     Sum of all user’s orders
     User’s sorted by sum of amounts of all orders
 
+## Part 2
+    Add Product entity
+    Add Category entity
+
+One category can have many products and one product can have many categories.
+
+Order must have at least one product.
+
+Order can have multiple amount of the same product
+
+#### To Do:
+    Update Order creating
+    Add CRUD for Products
+    Add CRUD for Categories
+    Add Queries:
+        - Fetch users with the orders that have products from the defined category
+        - Fetch categories sorted by order amount
+
+
 ## Requirements
 
 JDBC Template

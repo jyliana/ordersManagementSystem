@@ -2,6 +2,7 @@ package com.example.system.service;
 
 import com.example.system.model.User;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
@@ -15,5 +16,5 @@ public interface UserService {
 
     List<User> getUsersWithoutOrders();
 
-    List<Map<String, Object>> getUsersSortedByAmountOfOrders();
+    Map<User, BigInteger> getUsersSortedByAmountOfOrders();
 }

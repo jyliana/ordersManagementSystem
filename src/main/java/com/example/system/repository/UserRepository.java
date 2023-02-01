@@ -14,5 +14,5 @@ public interface UserRepository {
 
     List<User> getUsersWithoutOrders();
 
-    Map<User, Long> getUsersSortedByAmountOfOrders();
+    List<Map<String, Object>> getUsersSortedByAmountOfOrders();
 }

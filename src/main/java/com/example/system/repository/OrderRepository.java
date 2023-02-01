@@ -1,7 +1,6 @@
 package com.example.system.repository;
 
 import com.example.system.model.Order;
-import com.example.system.model.UserOrder;
 
 import java.util.List;
 
@@ -13,11 +12,9 @@ public interface OrderRepository {
 
     Order getOrder(Integer id);
 
-    Order deleteOrder(Integer id);
+    Integer deleteOrder(Integer id);
 
     List<Order> getValidSortedOrdersByUserId(Integer id);
 
     Integer getSumOfAllOrdersByUserId(Integer id);
-
-    List<UserOrder> getUsersWithOrdersWithStatus(String status);
 }

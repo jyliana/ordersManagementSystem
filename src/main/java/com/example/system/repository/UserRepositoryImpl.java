@@ -3,7 +3,7 @@ package com.example.system.repository;
 import com.example.system.exception.ResourceNotFoundException;
 import com.example.system.model.User;
 import com.example.system.repository.utils.UserRowMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -11,15 +11,14 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 
 @Repository("userRepository")
+@AllArgsConstructor
 public class UserRepositoryImpl implements UserRepository {
 
-    @Autowired
     private JdbcTemplate jdbcTemplate;
 
     @Override
@@ -57,25 +56,13 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Map<User, Long> getUsersSortedByAmountOfOrders() {
-        List<Map<String, Object>> maps = jdbcTemplate.queryForList(
+    public List<Map<String, Object>> getUsersSortedByAmountOfOrders() {
+        return jdbcTemplate.queryForList(
                 "SELECT u.id, u.name, SUM(o.amount) \"sum\" FROM orders_history h\n" +
                         "JOIN users u ON u.id=h.user_id\n" +
                         "JOIN orders o ON o.id=h.order_id\n" +
                         "GROUP BY u.id\n" +
                         "ORDER BY \"sum\" DESC");
-
-        Map<User, Long> users = new LinkedHashMap<>();
-        maps.forEach(row -> {
-                    User user = User.builder()
-                            .id((Integer) row.get("id"))
-                            .name((String) row.get("name"))
-                            .build();
-
-                    users.put(user, (Long) row.get("sum"));
-                }
-        );
-        return users;
     }
 
 }

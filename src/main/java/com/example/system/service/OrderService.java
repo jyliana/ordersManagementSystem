@@ -1,14 +1,16 @@
 package com.example.system.service;
 
 import com.example.system.model.Order;
-import com.example.system.model.UserOrder;
+import com.example.system.model.User;
+import com.example.system.model.dto.FullOrder;
 
 import java.util.List;
+import java.util.Map;
 
 public interface OrderService {
     List<Order> getOrders();
 
-    Order createOrder(Integer id, Order order);
+    Order createOrder(Integer id, FullOrder order);
 
     Order getOrder(Integer id);
 
@@ -18,7 +20,9 @@ public interface OrderService {
 
     Integer getSumOfAllOrdersByUserId(Integer id);
 
-    List<UserOrder> getUsersWithOrders();
+    Map<User, List<FullOrder>> getUsersWithOrders();
 
-    List<UserOrder> getUsersWithOrdersWithStatus(String status);
+    Map<User, List<FullOrder>> getUsersWithOrdersWithStatus(String status);
+
+    Map<User, List<FullOrder>> getUsersWithOrdersWithProductsFromCategory(String category);
 }
