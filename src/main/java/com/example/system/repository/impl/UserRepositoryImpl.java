@@ -1,7 +1,8 @@
-package com.example.system.repository;
+package com.example.system.repository.impl;
 
 import com.example.system.exception.ResourceNotFoundException;
 import com.example.system.model.User;
+import com.example.system.repository.UserRepository;
 import com.example.system.repository.utils.UserRowMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;

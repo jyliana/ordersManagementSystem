@@ -1,6 +1,8 @@
 package com.example.system.controller;
 
 import com.example.system.model.Order;
+import com.example.system.model.dto.BookedProduct;
+import com.example.system.model.dto.FullOrder;
 import com.example.system.model.enums.Status;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -27,7 +29,6 @@ class OrderControllerTest {
     private static final String URL_PORT = "http://localhost:8080/";
     private static final Status STATUS = Status.DELETED;
     private RestTemplate restTemplate;
-    private static Integer createdOrderId;
 
     @BeforeEach
     void setUp() {
@@ -114,24 +115,30 @@ class OrderControllerTest {
     @org.junit.jupiter.api.Order(1)
     @Timeout(value = 3000, unit = TimeUnit.MILLISECONDS)
     void testCreateOrderForUserId() {
-        Order order = Order.builder()
+        BookedProduct product = BookedProduct.builder()
+                .id(1)
+                .name("Nourishing Collagen Cream")
+                .amount(10)
+                .build();
+
+        FullOrder order = FullOrder.builder()
                 .amount(333)
                 .status(Status.VALID)
                 .tradeDate(Date.valueOf("2023-01-17"))
+                .products(List.of(product))
                 .build();
 
-        order = restTemplate.postForObject(URL_PORT + "createOrder/user/1", order, Order.class);
-        createdOrderId = order.getId();
+        order = restTemplate.postForObject(URL_PORT + "createOrder/user/1", order, FullOrder.class);
+        Integer createdOrderId = order.getId();
         assertThat(createdOrderId).isNotNull();
         assertThat(order.getStatus()).isEqualTo(Status.VALID);
     }
 
-    @Disabled("Works after testCreateOrder which is also disabled")
     @Test
     @org.junit.jupiter.api.Order(2)
     @Timeout(value = 3000, unit = TimeUnit.MILLISECONDS)
     void testDeleteOrder() {
-        Order result = restTemplate.postForObject(URL_PORT + "deleteOrder/" + createdOrderId, null, Order.class);
+        Order result = restTemplate.postForObject(URL_PORT + "deleteOrder/1", null, Order.class);
 
         assertThat(result).isNotNull().isExactlyInstanceOf(Order.class);
         assertThat(result.getStatus()).isEqualTo(Status.DELETED);

@@ -1,4 +1,4 @@
-package com.example.system.repository;
+package com.example.system.repository.jpa;
 
 import com.example.system.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @Repository("userJpaRepository")
-public interface UserJpaRepository extends JpaRepository<User, Long>, UserRepository {
+public interface UserJpaRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT o FROM User o")
     List<User> getUsers();

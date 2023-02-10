@@ -3,6 +3,7 @@ package com.example.system.controller;
 import com.example.system.model.Category;
 import com.example.system.service.CategoryService;
 import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,8 +34,18 @@ public class CategoryController {
         return categoryService.createCategory(category);
     }
 
+    @PostMapping("/updateCategory/{id}")
+    public Category updateCategory(@PathVariable Integer id, @RequestBody Category category) {
+        return categoryService.updateCategory(id, category);
+    }
+
+    @DeleteMapping("/deleteCategory/{id}")
+    public String deleteCategory(@PathVariable Integer id) {
+        return categoryService.deleteCategory(id);
+    }
+
     @GetMapping("/categoriesSortedByOrderAmount")
-    public List<Map<Object, Object>> getCategoriesSortedByOrderAmount() {
+    public List<Map<String, Object>> getCategoriesSortedByOrderAmount() {
         return categoryService.getCategoriesSortedByOrderAmount();
     }
 

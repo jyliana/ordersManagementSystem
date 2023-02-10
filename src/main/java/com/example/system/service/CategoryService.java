@@ -13,5 +13,9 @@ public interface CategoryService {
 
     Category getCategory(Integer id);
 
-    List<Map<Object, Object>> getCategoriesSortedByOrderAmount();
+    List<Map<String, Object>> getCategoriesSortedByOrderAmount();
+
+    Category updateCategory(Integer id, Category category);
+
+    String deleteCategory(Integer id);
 }

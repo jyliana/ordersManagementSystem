@@ -1,5 +1,6 @@
 package com.example.system.controller;
 
+import com.example.system.exception.ResourceNotFoundException;
 import com.example.system.model.Order;
 import com.example.system.model.User;
 import com.example.system.model.dto.FullOrder;
@@ -32,6 +33,9 @@ public class OrderController {
 
     @PostMapping("/createOrder/user/{id}")
     public Order createOrder(@PathVariable Integer id, @RequestBody FullOrder order) {
+        if (null == order.getProducts()) {
+            throw new ResourceNotFoundException("Order must have at least one product.");
+        }
         return orderService.createOrder(id, order);
     }
 

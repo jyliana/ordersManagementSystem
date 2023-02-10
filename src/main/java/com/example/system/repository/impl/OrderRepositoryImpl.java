@@ -1,7 +1,8 @@
-package com.example.system.repository;
+package com.example.system.repository.impl;
 
 import com.example.system.exception.ResourceNotFoundException;
 import com.example.system.model.Order;
+import com.example.system.repository.OrderRepository;
 import com.example.system.repository.utils.OrderRowMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;

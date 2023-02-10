@@ -1,4 +1,4 @@
-package com.example.system.repository;
+package com.example.system.repository.jpa;
 
 import com.example.system.model.Order;
 import org.springframework.data.domain.Sort;
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public interface OrderJpaRepository extends JpaRepository<Order, Long>, OrderRepository {
+public interface OrderJpaRepository extends JpaRepository<Order, Long> {
 
     @Query("SELECT o FROM Order o")
     List<Order> getOrders(Sort id);

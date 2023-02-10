@@ -2,7 +2,7 @@ package com.example.system.service;
 
 import com.example.system.exception.ResourceNotFoundException;
 import com.example.system.model.User;
-import com.example.system.repository.UserJpaRepository;
+import com.example.system.repository.jpa.UserJpaRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 

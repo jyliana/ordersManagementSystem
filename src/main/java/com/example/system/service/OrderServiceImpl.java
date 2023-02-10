@@ -6,7 +6,7 @@ import com.example.system.model.User;
 import com.example.system.model.dto.BookedProduct;
 import com.example.system.model.dto.FullOrder;
 import com.example.system.model.enums.Status;
-import com.example.system.repository.OrderJpaRepository;
+import com.example.system.repository.jpa.OrderJpaRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;

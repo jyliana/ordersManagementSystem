@@ -32,7 +32,6 @@ class UserControllerTest {
     @Test
     @Timeout(value = 4000, unit = TimeUnit.MILLISECONDS)
     void testGetAllUsers() {
-
         ResponseEntity<List<User>> userResponse = restTemplate.exchange(URL_PORT + "users", HttpMethod.GET,
                 null, new ParameterizedTypeReference<>() {
                 });
