@@ -7,7 +7,7 @@ CREATE type order_status as enum('DELETED', 'VALID');
 
 CREATE TABLE orders (
     id SERIAL PRIMARY KEY,
-    trade_date DATE NOT NULL,
+    trade_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     amount INTEGER NOT NULL,
     status order_status NOT NULL
 );
@@ -20,7 +20,11 @@ CREATE TABLE orders_history (
 
 CREATE TABLE products (
   id SERIAL PRIMARY KEY,
-  name VARCHAR not null
+  name VARCHAR NOT NULL,
+  available_quantity INTEGER NOT NULL DEFAULT 0,
+  booked_quantity INTEGER NOT NULL DEFAULT 0,
+  CHECK (available_quantity >= 0),
+  CHECK (booked_quantity >=0 )
 );
 
 CREATE TABLE categories (

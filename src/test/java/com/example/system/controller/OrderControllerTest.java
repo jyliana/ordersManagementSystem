@@ -1,7 +1,7 @@
 package com.example.system.controller;
 
 import com.example.system.model.Order;
-import com.example.system.model.dto.BookedProduct;
+import com.example.system.model.Product;
 import com.example.system.model.dto.FullOrder;
 import com.example.system.model.enums.Status;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -115,16 +116,16 @@ class OrderControllerTest {
     @org.junit.jupiter.api.Order(1)
     @Timeout(value = 3000, unit = TimeUnit.MILLISECONDS)
     void testCreateOrderForUserId() {
-        BookedProduct product = BookedProduct.builder()
+        Product product = Product.builder()
                 .id(1)
                 .name("Nourishing Collagen Cream")
-                .amount(10)
+                .quantity(10)
                 .build();
 
         FullOrder order = FullOrder.builder()
                 .amount(333)
                 .status(Status.VALID)
-                .tradeDate(Date.valueOf("2023-01-17"))
+                .tradeDate(Timestamp.valueOf("2023-01-17"))
                 .products(List.of(product))
                 .build();
 

@@ -9,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -24,8 +23,8 @@ public interface OrderJpaRepository extends JpaRepository<Order, Long> {
 
 
     @Transactional
-    @Query(value = "INSERT INTO orders (trade_date, amount, status) VALUES (?, ?, ?) RETURNING id", nativeQuery = true)
-    Integer createOrder(@Param("trade_date") Date tradeDate, @Param("amount") Integer amount, @Param("status") String status);
+    @Query(value = "INSERT INTO orders (amount, status) VALUES (?, ?) RETURNING id", nativeQuery = true)
+    Integer createOrder(@Param("amount") Integer amount, @Param("status") String status);
 
     @Modifying
     @Transactional
@@ -75,7 +74,7 @@ public interface OrderJpaRepository extends JpaRepository<Order, Long> {
             "where o.status = :order_status", nativeQuery = true)
     List<Map<String, Object>> getUsersWithOrdersWithStatus(@Param("order_status") String status);
 
-    @Query(value = "SELECT u.id, u.name, o.id \"order_id\", o.trade_date, o.amount, o.status, \n" +
+    @Query(value = "SELECT u.id \"user_id\", u.name, o.id \"order_id\", o.trade_date, o.amount, o.status, \n" +
             "p.id \"product_id\", p.name \"product\", od.amount \"quantity\"" +
             "FROM orders_history h\n" +
             "JOIN users u ON u.id=h.user_id\n" +

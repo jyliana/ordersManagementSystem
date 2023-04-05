@@ -46,6 +46,24 @@ Order can have multiple amount of the same product
     - Fetch users with the orders that have products from the defined category
     - Fetch categories sorted by order amount
 
+## Part 3
+
+1. Add amount of products that can be bought. If **n** products are in the user order it means the amount of available product **equals = product.availableAmount - n**. 
+
+- Add queries to fetch available products
+- Add queries to fetch not available products
+
+2. User can book a product for some period of time. So the amount of booked product items are not available for other users. 
+If user doesn't buy these items in n minutes then product items become available again. 
+
+- Add additional field to handle the item status
+- Add queries to fetch available products (they are not booked)
+- Add cron job to unbook product items
+
+3. Create integration test to simulate situation where multiple users buy the same product items to validate cases if the total amount of bought product items will be not bigger then available amount.
+
+
+
 ## Requirements
 
 JDBC Template  
