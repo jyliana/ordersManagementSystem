@@ -48,7 +48,7 @@ Order can have multiple amount of the same product
 
 ## Part 3
 
-1. Add amount of products that can be bought. If **n** products are in the user order it means the amount of available product **equals = product.availableAmount - n**. 
+1. Add amount of products that can be bought. If **n** products are in the user order it means the amount of available product equals = product.availableAmount - n. 
 
 - Add queries to fetch available products
 - Add queries to fetch not available products
@@ -81,10 +81,10 @@ Tests to cover the main logic
       "categories":[
         {
           "id": 4,
-          "name": "Organic cosmetics"
+          "name": "Organic cosmetics" // Optional
         },{
           "id": 3,
-          "name": "Face"
+          "name": "Face" // Optional
         }
       ]
     }
@@ -92,17 +92,16 @@ Tests to cover the main logic
 **Create order:**
 
     {  
-        "tradeDate": "2022-02-02",  
-        "amount": 19,  
+        "tradeDate": "2022-02-02",  // Optional     
         "status": "VALID",    
         "products":[  
             {  
               "id":1,  
-              "name": "Nourishing Collagen Cream",
+              "name": "Nourishing Collagen Cream", // Optional
               "amount": 12  
             },{
               "id":3,
-              "name": "Green Tea Shampoo",
+              "name": "Green Tea Shampoo", // Optional
               "amount": 7
             }
         ]    

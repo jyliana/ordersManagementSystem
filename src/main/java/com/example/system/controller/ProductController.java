@@ -30,6 +30,21 @@ public class ProductController {
         return productService.getProduct(id);
     }
 
+    @GetMapping("/availableProducts")
+    public List<Product> getAvailableProducts() {
+        return productService.getAvailableProducts();
+    }
+
+    @GetMapping("/unavailableProducts")
+    public List<Product> getUnAvailableProducts() {
+        return productService.getUnAvailableProducts();
+    }
+
+    @GetMapping("/unbookProducts")
+    public List<Product> unbookProducts() {
+        return productService.unbookProducts();
+    }
+
     @GetMapping("/productWithCategories/{id}")
     public Map<Product, List<Category>> getProductWithCategoriesById(@PathVariable Integer id) {
         return productService.getProductWithCategories(id);

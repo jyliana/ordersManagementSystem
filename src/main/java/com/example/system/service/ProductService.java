@@ -18,4 +18,10 @@ public interface ProductService {
     Map<Product, List<Category>> updateProduct(Integer id, Map<String, Object> product);
 
     String deleteProduct(Integer id);
+
+    List<Product> getAvailableProducts();
+
+    List<Product> getUnAvailableProducts();
+
+    List<Product> unbookProducts();
 }

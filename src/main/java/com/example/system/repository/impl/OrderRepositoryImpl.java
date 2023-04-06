@@ -30,7 +30,7 @@ public class OrderRepositoryImpl implements OrderRepository {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement("INSERT INTO orders (trade_date, amount, status) VALUES (?, ?, ?::order_status)", new String[]{"id"});
-            ps.setDate(1, order.getTradeDate());
+            ps.setTimestamp(1, order.getTradeDate());
             ps.setInt(2, order.getAmount());
             ps.setString(3, order.getStatus().name());
             return ps;

@@ -21,8 +21,8 @@ public interface ProductJpaRepository extends JpaRepository<Product, Long> {
     Product getProduct(Integer id);
 
     @Transactional
-    @Query(value = "INSERT INTO products (name) VALUES (:name) RETURNING id", nativeQuery = true)
-    Integer createProduct(@Param("name") String name);
+    @Query(value = "INSERT INTO products (name, available_quantity) VALUES (:name, :quantity) RETURNING id", nativeQuery = true)
+    Integer createProduct(@Param("name") String name, @Param("quantity") Integer quantity);
 
     @Modifying
     @Transactional
@@ -50,4 +50,17 @@ public interface ProductJpaRepository extends JpaRepository<Product, Long> {
             "JOIN categories c ON c.id=pc.category_id\n" +
             "WHERE p.id=?", nativeQuery = true)
     List<Map<String, Object>> getProductWithCategories(Integer id);
+
+    @Query(value = "SELECT * FROM products WHERE available_quantity>0", nativeQuery = true)
+    List<Product> getAvailableProducts();
+
+    @Query(value = "SELECT * FROM products WHERE available_quantity=0", nativeQuery = true)
+    List<Product> getUnAvailableProducts();
+
+    @Query(value = "SELECT available_quantity FROM products WHERE id=?", nativeQuery = true)
+    Integer getProductsAvailableQuantity(Integer productId);
+
+    @Query(value = "SELECT od.order_id, o.trade_date, od.product_id, od.amount FROM orders AS o\n" +
+            "JOIN order_details AS od ON od.order_id=o.id WHERE booked IS true", nativeQuery = true)
+    List<Map<String, Object>> getBookedProducts();
 }

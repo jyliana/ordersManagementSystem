@@ -3,8 +3,8 @@ package com.example.system.service;
 import com.example.system.exception.ResourceNotFoundException;
 import com.example.system.model.Category;
 import com.example.system.model.Product;
-import com.example.system.repository.ProductRepository;
 import com.example.system.repository.jpa.CategoryJpaRepository;
+import com.example.system.repository.jpa.ProductJpaRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +20,7 @@ import static com.example.system.service.constants.Constants.THE_PRODUCT_WITH_ID
 @AllArgsConstructor
 public class ProductServiceImpl implements ProductService {
 
-    private ProductRepository productRepository;
+    private ProductJpaRepository productRepository;
     private CategoryJpaRepository categoryJpaRepository;
 
     @Override
@@ -29,12 +29,30 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public List<Product> getAvailableProducts() {
+        return productRepository.getAvailableProducts();
+    }
+
+    @Override
+    public List<Product> getUnAvailableProducts() {
+        return productRepository.getUnAvailableProducts();
+    }
+
+    @Override
+    // TODO
+    public List<Product> unbookProducts() {
+        List<Map<String, Object>> bookedProducts = productRepository.getBookedProducts();
+        return null;
+    }
+
+    @Override
     public Product createProduct(Map<String, Object> product) {
         String name = (String) product.get("name");
+        Integer quantity = (Integer) product.get("quantity");
         try {
             List<Integer> categoryIds = getCategoryIds(product);
             if (allCategoriesExist(categoryIds)) {
-                Integer id = productRepository.createProduct(name);
+                Integer id = productRepository.createProduct(name, quantity);
                 categoryIds.forEach(categoryId -> productRepository.updateProductCategory(id, categoryId));
                 return getProduct(id);
             } else throw new ResourceNotFoundException("Something happened.");

@@ -12,7 +12,7 @@ public class OrderRowMapper implements RowMapper<Order> {
     public Order mapRow(ResultSet rs, int rowNum) throws SQLException {
         return Order.builder()
                 .id(rs.getInt("id"))
-                .tradeDate(rs.getDate("trade_date"))
+                .tradeDate(rs.getTimestamp("trade_date"))
                 .amount(rs.getInt("amount"))
                 .status(Status.valueOf(rs.getString("status")))
                 .build();

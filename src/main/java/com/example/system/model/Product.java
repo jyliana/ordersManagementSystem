@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -26,6 +25,4 @@ public class Product {
 
     private String name;
 
-    @Column(name = "booked_quantity")
-    private Integer quantity;
 }

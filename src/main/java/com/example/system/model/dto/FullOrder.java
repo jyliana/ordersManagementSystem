@@ -1,6 +1,5 @@
 package com.example.system.model.dto;
 
-import com.example.system.model.Product;
 import com.example.system.model.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,13 +16,13 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class FullOrder {
-    private Integer id;
+    private Integer orderId;
     private Timestamp tradeDate;
-    private Integer amount;
+    private Integer totalAmount;
 
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    private List<Product> products;
+    private List<BookedProduct> products;
 
 }

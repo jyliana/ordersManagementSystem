@@ -84,4 +84,15 @@ public interface OrderJpaRepository extends JpaRepository<Order, Long> {
             "JOIN product_categories pc on pc.product_id=od.product_id\n" +
             "WHERE pc.category_id=(SELECT id FROM categories WHERE name=?)", nativeQuery = true)
     List<Map<String, Object>> getUsersWithOrdersWithProductsFromCategory(String category);
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE products SET booked_quantity=booked_quantity+:quantity, available_quantity=available_quantity-:quantity WHERE id=:id", nativeQuery = true)
+    Integer bookProduct(@Param("id") Integer productId, @Param("quantity") Integer productQuantity);
+
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE products SET available_quantity=available_quantity-:quantity WHERE id=:id", nativeQuery = true)
+    Integer buyProduct(@Param("id") Integer productId, @Param("quantity") Integer productQuantity);
 }

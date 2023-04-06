@@ -14,7 +14,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.sql.Date;
+import java.sql.Timestamp;
 
 @Data
 @AllArgsConstructor
@@ -28,7 +28,7 @@ public class Order {
     private Integer id;
 
     @Column(name = "trade_date")
-    private Date tradeDate;
+    private Timestamp tradeDate;
 
     private Integer amount;
 

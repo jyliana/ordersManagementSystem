@@ -1,7 +1,7 @@
 package com.example.system.controller;
 
 import com.example.system.model.Order;
-import com.example.system.model.Product;
+import com.example.system.model.dto.BookedProduct;
 import com.example.system.model.dto.FullOrder;
 import com.example.system.model.enums.Status;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +15,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
@@ -116,21 +115,21 @@ class OrderControllerTest {
     @org.junit.jupiter.api.Order(1)
     @Timeout(value = 3000, unit = TimeUnit.MILLISECONDS)
     void testCreateOrderForUserId() {
-        Product product = Product.builder()
+        BookedProduct product = BookedProduct.builder()
                 .id(1)
                 .name("Nourishing Collagen Cream")
                 .quantity(10)
                 .build();
 
         FullOrder order = FullOrder.builder()
-                .amount(333)
+                .totalAmount(333)
                 .status(Status.VALID)
                 .tradeDate(Timestamp.valueOf("2023-01-17"))
                 .products(List.of(product))
                 .build();
 
         order = restTemplate.postForObject(URL_PORT + "createOrder/user/1", order, FullOrder.class);
-        Integer createdOrderId = order.getId();
+        Integer createdOrderId = order.getOrderId();
         assertThat(createdOrderId).isNotNull();
         assertThat(order.getStatus()).isEqualTo(Status.VALID);
     }
@@ -163,7 +162,7 @@ class OrderControllerTest {
                     softly.assertThat(order).isNotNull();
                     softly.assertThat(order).isExactlyInstanceOf(Order.class);
                     softly.assertThat(order.getId()).isExactlyInstanceOf(Integer.class);
-                    softly.assertThat(order.getTradeDate()).isExactlyInstanceOf(Date.class);
+                    softly.assertThat(order.getTradeDate()).isExactlyInstanceOf(Timestamp.class);
                     softly.assertThat(order.getAmount()).isExactlyInstanceOf(Integer.class);
                     softly.assertThat(order.getStatus()).isExactlyInstanceOf(Status.class);
                 }

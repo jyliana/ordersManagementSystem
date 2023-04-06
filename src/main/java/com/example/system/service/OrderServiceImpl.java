@@ -2,14 +2,16 @@ package com.example.system.service;
 
 import com.example.system.exception.ResourceNotFoundException;
 import com.example.system.model.Order;
-import com.example.system.model.Product;
 import com.example.system.model.User;
+import com.example.system.model.dto.BookedProduct;
 import com.example.system.model.dto.FullOrder;
 import com.example.system.model.enums.Status;
 import com.example.system.repository.jpa.OrderJpaRepository;
+import com.example.system.repository.jpa.ProductJpaRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -27,6 +29,7 @@ import static com.example.system.service.constants.Constants.DOES_NOT_EXIST;
 public class OrderServiceImpl implements OrderService {
 
     private OrderJpaRepository orderJpaRepository;
+    private ProductJpaRepository productJpaRepository;
 
     @Override
     public List<Order> getOrders() {
@@ -44,15 +47,18 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public Order createOrder(Integer userId, FullOrder order) {
         try {
-            Integer orderId = orderJpaRepository.createOrder(order.getAmount(), order.getStatus().name());
+            Integer totalAmount = order.getProducts().stream().mapToInt(BookedProduct::getQuantity).sum();
+            if (!allProductsAreAvailable(order)) {
+                throw new ResourceNotFoundException("The required products are not available.");
+            }
+
+            Integer orderId = orderJpaRepository.createOrder(totalAmount, order.getStatus().name());
             boolean updateOrderDetailsResult = order.getProducts()
                     .stream()
-                    .allMatch(product -> {
-                        Integer updateResult = orderJpaRepository.updateOrderDetails(orderId, product.getId(), product.getQuantity());
-                        return updateResult == 1;
-                    });
+                    .allMatch(product -> updateProductAndOrderDetails(orderId, product, order.getStatus()));
             boolean updateOrdersHistoryResult = orderJpaRepository.updateOrdersHistory(userId, orderId) == 1;
 
             if (updateOrdersHistoryResult && updateOrderDetailsResult) {
@@ -60,6 +66,8 @@ public class OrderServiceImpl implements OrderService {
             } else {
                 throw new ResourceNotFoundException(AN_ORDER_WITH_ID + orderId + CANNOT_BE_CREATED);
             }
+        } catch (ResourceNotFoundException e) {
+            throw new ResourceNotFoundException(e.getMessage());
         } catch (Exception e) {
             throw new ResourceNotFoundException("The order for user " + userId + CANNOT_BE_CREATED);
         }
@@ -115,6 +123,23 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+    private boolean allProductsAreAvailable(FullOrder order) {
+        return order.getProducts().stream()
+                .allMatch(product ->
+                        productJpaRepository.getProductsAvailableQuantity(product.getId()) >= product.getQuantity()
+                );
+    }
+
+    private boolean updateProductAndOrderDetails(Integer orderId, BookedProduct product, Status status) {
+        Integer productId = product.getId();
+        Integer quantity = product.getQuantity();
+        Integer updateProductResult = Status.BOOKED.equals(status) ?
+                orderJpaRepository.bookProduct(productId, quantity)
+                : orderJpaRepository.buyProduct(productId, quantity);
+
+        Integer updateDetailsResult = orderJpaRepository.updateOrderDetails(orderId, productId, quantity);
+        return updateDetailsResult == 1 && updateProductResult == 1;
+    }
 
     private static void getUsersWithOrders(Map<User, List<FullOrder>> result, Map<String, Object> row) {
         User user = User.builder()
@@ -122,7 +147,7 @@ public class OrderServiceImpl implements OrderService {
                 .name((String) row.get("name"))
                 .build();
 
-        Product product = Product.builder()
+        BookedProduct product = BookedProduct.builder()
                 .id((Integer) row.get("product_id"))
                 .name((String) row.get("product"))
                 .quantity((Integer) row.get("quantity"))
@@ -130,18 +155,18 @@ public class OrderServiceImpl implements OrderService {
 
         Integer orderId = (Integer) row.get("order_id");
         FullOrder order = FullOrder.builder()
-                .id(orderId)
+                .orderId(orderId)
                 .tradeDate((Timestamp) row.get("trade_date"))
-                .amount((Integer) row.get("amount"))
+                .totalAmount((Integer) row.get("amount"))
                 .status(Status.valueOf(row.get("status").toString()))
                 .products(List.of(product))
                 .build();
 
         if (result.containsKey(user)) {
             List<FullOrder> orders = new ArrayList<>(result.get(user));
-            Optional<FullOrder> existingOrder = orders.stream().filter(fullOrder -> fullOrder.getId().equals(orderId)).findFirst();
+            Optional<FullOrder> existingOrder = orders.stream().filter(fullOrder -> fullOrder.getOrderId().equals(orderId)).findFirst();
             if (existingOrder.isPresent()) {
-                List<Product> products = new ArrayList<>(existingOrder.get().getProducts());
+                List<BookedProduct> products = new ArrayList<>(existingOrder.get().getProducts());
                 products.add(product);
                 existingOrder.get().setProducts(products);
             } else {
