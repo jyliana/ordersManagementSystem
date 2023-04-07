@@ -28,8 +28,8 @@ public interface OrderJpaRepository extends JpaRepository<Order, Long> {
 
     @Modifying
     @Transactional
-    @Query(value = "INSERT INTO order_details (order_id, product_id, amount) values (?, ?, ?)", nativeQuery = true)
-    Integer updateOrderDetails(Integer orderId, Integer productId, Integer amount);
+    @Query(value = "INSERT INTO order_details (order_id, product_id, amount, booked) values (?, ?, ?, ?)", nativeQuery = true)
+    Integer updateOrderDetails(Integer orderId, Integer productId, Integer amount, boolean isBooked);
 
     @Modifying
     @Transactional
@@ -95,4 +95,9 @@ public interface OrderJpaRepository extends JpaRepository<Order, Long> {
     @Transactional
     @Query(value = "UPDATE products SET available_quantity=available_quantity-:quantity WHERE id=:id", nativeQuery = true)
     Integer buyProduct(@Param("id") Integer productId, @Param("quantity") Integer productQuantity);
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE orders SET status = :status WHERE id=:id", nativeQuery = true)
+    Integer changeOrderStatus(@Param("status") String status, @Param("id") Integer orderId);
 }

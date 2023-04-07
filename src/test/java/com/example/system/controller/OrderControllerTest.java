@@ -17,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -54,7 +55,7 @@ class OrderControllerTest {
         Collection<List<Order>> values = orderResponse.getBody().values();
         boolean resultOfAllStatuses = values.stream().allMatch(m -> m.stream().allMatch(order -> {
             Status status = order.getStatus();
-            return status.equals(STATUS) || status.equals(Status.VALID);
+            return EnumSet.allOf(Status.class).contains(status);
         }));
 
         assertSoftly(softly -> {

@@ -60,7 +60,22 @@ public interface ProductJpaRepository extends JpaRepository<Product, Long> {
     @Query(value = "SELECT available_quantity FROM products WHERE id=?", nativeQuery = true)
     Integer getProductsAvailableQuantity(Integer productId);
 
-    @Query(value = "SELECT od.order_id, o.trade_date, od.product_id, od.amount FROM orders AS o\n" +
-            "JOIN order_details AS od ON od.order_id=o.id WHERE booked IS true", nativeQuery = true)
-    List<Map<String, Object>> getBookedProducts();
+    @Query(value = "SELECT od.order_id, o.trade_date, od.product_id, p.name, od.amount FROM orders AS o\n" +
+            "JOIN order_details AS od ON od.order_id=o.id\n" +
+            "JOIN products AS p ON p.id=od.product_id\n" +
+            "WHERE booked IS true\n" +
+            "AND (EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - o.trade_date)/60 >= :unbookingTime)", nativeQuery = true)
+    List<Map<String, Object>> getBookedProducts(long unbookingTime);
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE products\n" +
+            "SET booked_quantity=booked_quantity-:quantity, available_quantity=available_quantity+:quantity\n" +
+            "WHERE id=:id", nativeQuery = true)
+    Integer unbookProducts(@Param("id") Integer id, @Param("quantity") Integer quantity);
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE order_details SET booked=false WHERE order_id=?", nativeQuery = true)
+    Integer unbookProductsInOrderDetails(Integer orderId);
 }

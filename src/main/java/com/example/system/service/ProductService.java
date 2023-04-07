@@ -2,6 +2,7 @@ package com.example.system.service;
 
 import com.example.system.model.Category;
 import com.example.system.model.Product;
+import com.example.system.model.dto.BookedProduct;
 
 import java.util.List;
 import java.util.Map;
@@ -23,5 +24,5 @@ public interface ProductService {
 
     List<Product> getUnAvailableProducts();
 
-    List<Product> unbookProducts();
+    List<BookedProduct> unbookProducts();
 }

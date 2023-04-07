@@ -133,11 +133,12 @@ public class OrderServiceImpl implements OrderService {
     private boolean updateProductAndOrderDetails(Integer orderId, BookedProduct product, Status status) {
         Integer productId = product.getId();
         Integer quantity = product.getQuantity();
-        Integer updateProductResult = Status.BOOKED.equals(status) ?
+        boolean isBooked = Status.BOOKED.equals(status);
+        Integer updateProductResult = isBooked ?
                 orderJpaRepository.bookProduct(productId, quantity)
                 : orderJpaRepository.buyProduct(productId, quantity);
 
-        Integer updateDetailsResult = orderJpaRepository.updateOrderDetails(orderId, productId, quantity);
+        Integer updateDetailsResult = orderJpaRepository.updateOrderDetails(orderId, productId, quantity, isBooked);
         return updateDetailsResult == 1 && updateProductResult == 1;
     }
 

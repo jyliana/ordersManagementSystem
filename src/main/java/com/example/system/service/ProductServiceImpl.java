@@ -3,10 +3,15 @@ package com.example.system.service;
 import com.example.system.exception.ResourceNotFoundException;
 import com.example.system.model.Category;
 import com.example.system.model.Product;
+import com.example.system.model.dto.BookedProduct;
+import com.example.system.model.enums.Status;
 import com.example.system.repository.jpa.CategoryJpaRepository;
+import com.example.system.repository.jpa.OrderJpaRepository;
 import com.example.system.repository.jpa.ProductJpaRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -15,13 +20,20 @@ import java.util.stream.Collectors;
 import static com.example.system.service.constants.Constants.CANNOT_BE_CREATED;
 import static com.example.system.service.constants.Constants.DOES_NOT_EXIST;
 import static com.example.system.service.constants.Constants.THE_PRODUCT_WITH_ID;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service("productService")
 @AllArgsConstructor
+@Slf4j
 public class ProductServiceImpl implements ProductService {
+    private static final long UNBOOKING_TIME = 15;
+    private static final String PRODUCT_ID = "product_id";
+    private static final String AMOUNT = "amount";
+    private static final String NAME = "name";
 
     private ProductJpaRepository productRepository;
     private CategoryJpaRepository categoryJpaRepository;
+    private OrderJpaRepository orderJpaRepository;
 
     @Override
     public List<Product> getProducts() {
@@ -39,15 +51,48 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    // TODO
-    public List<Product> unbookProducts() {
-        List<Map<String, Object>> bookedProducts = productRepository.getBookedProducts();
-        return null;
+    @Transactional
+    public List<BookedProduct> unbookProducts() {
+        try {
+            List<Map<String, Object>> bookedProducts = productRepository.getBookedProducts(UNBOOKING_TIME);
+
+            if (isEmpty(bookedProducts)) {
+                throw new ResourceNotFoundException("There are no products available to be unbooked.");
+            }
+
+            boolean productsUnbooked = bookedProducts.stream()
+                    .allMatch(row -> {
+                        Integer productId = (Integer) row.get(PRODUCT_ID);
+                        Integer amount = (Integer) row.get(AMOUNT);
+                        return productRepository.unbookProducts(productId, amount) == 1;
+                    });
+
+            boolean ordersUpdated = bookedProducts.stream()
+                    .mapToInt(row -> (Integer) row.get("order_id"))
+                    .distinct().allMatch(orderId ->
+                            orderJpaRepository.changeOrderStatus(Status.UNPAID.toString(), orderId) == 1 &&
+                                    productRepository.unbookProductsInOrderDetails(orderId) > 0);
+            if (productsUnbooked && ordersUpdated) {
+                log.info("The booked products are now available again.");
+                return bookedProducts.stream().map(row ->
+                        BookedProduct.builder()
+                                .id((Integer) row.get(PRODUCT_ID))
+                                .name((String) row.get(NAME))
+                                .quantity((Integer) row.get(AMOUNT))
+                                .build()
+                ).collect(Collectors.toList());
+            } else {
+                throw new ResourceNotFoundException("Something happened, and the products were not unbooked.");
+            }
+        } catch (Exception e) {
+            log.error("Something happened, and the products were not unbooked.");
+            throw new ResourceNotFoundException(e.getMessage());
+        }
     }
 
     @Override
     public Product createProduct(Map<String, Object> product) {
-        String name = (String) product.get("name");
+        String name = (String) product.get(NAME);
         Integer quantity = (Integer) product.get("quantity");
         try {
             List<Integer> categoryIds = getCategoryIds(product);
@@ -73,7 +118,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Map<Product, List<Category>> updateProduct(Integer id, Map<String, Object> product) {
-        String name = (String) product.get("name");
+        String name = (String) product.get(NAME);
         List<Integer> categoryIds = getCategoryIds(product);
 
         if (!categoryIds.isEmpty() && allCategoriesExist(categoryIds)) {
@@ -96,7 +141,7 @@ public class ProductServiceImpl implements ProductService {
         }
         Map<String, Object> productMap = productWithCategories.get(0);
         Product product = Product.builder()
-                .id((Integer) productMap.get("product_id"))
+                .id((Integer) productMap.get(PRODUCT_ID))
                 .name((String) productMap.get("product_name"))
                 .build();
         List<Category> categories = productWithCategories.stream().map(row -> Category.builder()

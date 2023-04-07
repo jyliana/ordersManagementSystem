@@ -3,7 +3,7 @@ CREATE TABLE users (
     name VARCHAR(50) NOT NULL
 );
 
-CREATE type order_status as enum('DELETED', 'VALID', 'BOOKED');
+CREATE type order_status as enum('DELETED', 'VALID', 'BOOKED', 'UNPAID');
 
 CREATE TABLE orders (
     id SERIAL PRIMARY KEY,

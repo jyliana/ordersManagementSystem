@@ -1,6 +1,6 @@
 package com.example.system.model.enums;
 
 public enum Status {
-    VALID, BOOKED, DELETED
+    VALID, BOOKED, UNPAID, DELETED
 
 }

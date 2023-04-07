@@ -2,6 +2,7 @@ package com.example.system.controller;
 
 import com.example.system.model.Category;
 import com.example.system.model.Product;
+import com.example.system.model.dto.BookedProduct;
 import com.example.system.service.ProductService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -41,7 +42,7 @@ public class ProductController {
     }
 
     @GetMapping("/unbookProducts")
-    public List<Product> unbookProducts() {
+    public List<BookedProduct> unbookProducts() {
         return productService.unbookProducts();
     }
 
