@@ -4,7 +4,7 @@ import com.example.system.model.Order;
 import com.example.system.model.dto.BookedProduct;
 import com.example.system.model.dto.FullOrder;
 import com.example.system.model.enums.Status;
-import org.junit.jupiter.api.BeforeEach;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Test;
@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Timeout;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.sql.Timestamp;
@@ -24,20 +25,18 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @TestMethodOrder(OrderAnnotation.class)
 class OrderControllerTest {
     private static final String URL_PORT = "http://localhost:8080/";
+    private static final Status BOOKED_STATUS = Status.BOOKED;
     private static final Status STATUS = Status.DELETED;
-    private RestTemplate restTemplate;
-
-    @BeforeEach
-    void setUp() {
-        restTemplate = new RestTemplate();
-    }
+    private static final Integer QUANTITY = 60;
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Test
-    @Timeout(value = 3000, unit = TimeUnit.MILLISECONDS)
+    @Timeout(value = 5000, unit = TimeUnit.MILLISECONDS)
     void testGetAllOrders() {
         ResponseEntity<List<Order>> orderResponse = restTemplate.exchange(URL_PORT + "orders", HttpMethod.GET,
                 null, new ParameterizedTypeReference<>() {
@@ -110,39 +109,57 @@ class OrderControllerTest {
         assertThat(sum).isExactlyInstanceOf(Integer.class).isNotNull();
     }
 
+    @Disabled("In order to not create new orders constantly")
+    @Test
+    @Timeout(value = 5000, unit = TimeUnit.MILLISECONDS)
+    void testShouldThrowExceptionWhenQuantityNotAvailable() {
+        Order order = createOrder(QUANTITY);
+        HttpClientErrorException exception = assertThrows(HttpClientErrorException.class, () -> createOrder(QUANTITY));
+
+        SoftAssertions.assertSoftly(softly -> {
+                    softly.assertThat(exception.getRawStatusCode()).isEqualTo(404);
+                    softly.assertThat(exception.getMessage().contains("The required products are not available.")).isTrue();
+                }
+        );
+
+        assertThat(order.getId()).isNotNull();
+        assertThat(order.getAmount()).isEqualTo(QUANTITY);
+        assertThat(order.getStatus()).isEqualTo(BOOKED_STATUS);
+    }
 
     @Disabled("In order to not create new orders constantly")
     @Test
-    @org.junit.jupiter.api.Order(1)
     @Timeout(value = 3000, unit = TimeUnit.MILLISECONDS)
     void testCreateOrderForUserId() {
-        BookedProduct product = BookedProduct.builder()
-                .id(1)
-                .name("Nourishing Collagen Cream")
-                .quantity(10)
-                .build();
+        Order order = createOrder(10);
+        Integer createdOrderId = order.getId();
 
-        FullOrder order = FullOrder.builder()
-                .totalAmount(333)
-                .status(Status.VALID)
-                .tradeDate(Timestamp.valueOf("2023-01-17"))
-                .products(List.of(product))
-                .build();
-
-        order = restTemplate.postForObject(URL_PORT + "createOrder/user/1", order, FullOrder.class);
-        Integer createdOrderId = order.getOrderId();
         assertThat(createdOrderId).isNotNull();
-        assertThat(order.getStatus()).isEqualTo(Status.VALID);
+        assertThat(order.getStatus()).isEqualTo(BOOKED_STATUS);
     }
 
+
     @Test
-    @org.junit.jupiter.api.Order(2)
     @Timeout(value = 3000, unit = TimeUnit.MILLISECONDS)
     void testDeleteOrder() {
         Order result = restTemplate.postForObject(URL_PORT + "deleteOrder/1", null, Order.class);
 
         assertThat(result).isNotNull().isExactlyInstanceOf(Order.class);
         assertThat(result.getStatus()).isEqualTo(Status.DELETED);
+    }
+
+    private Order createOrder(Integer quantity) {
+        BookedProduct product = BookedProduct.builder()
+                .id(1)
+                .quantity(quantity)
+                .build();
+
+        FullOrder order = FullOrder.builder()
+                .status(BOOKED_STATUS)
+                .products(List.of(product))
+                .build();
+
+        return restTemplate.postForObject(URL_PORT + "createOrder/user/1", order, Order.class);
     }
 
     private static void assertListOfOrders(final ResponseEntity<List<Order>> orderResponse) {

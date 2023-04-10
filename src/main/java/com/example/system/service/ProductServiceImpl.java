@@ -10,9 +10,12 @@ import com.example.system.repository.jpa.OrderJpaRepository;
 import com.example.system.repository.jpa.ProductJpaRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -24,9 +27,10 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service("productService")
 @AllArgsConstructor
+@EnableScheduling
 @Slf4j
 public class ProductServiceImpl implements ProductService {
-    private static final long UNBOOKING_TIME = 15;
+    private static final long BOOKED_TIME_IN_MINUTES = 1;
     private static final String PRODUCT_ID = "product_id";
     private static final String AMOUNT = "amount";
     private static final String NAME = "name";
@@ -52,12 +56,15 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    @Scheduled(cron = "0 */5 * * * *")
     public List<BookedProduct> unbookProducts() {
         try {
-            List<Map<String, Object>> bookedProducts = productRepository.getBookedProducts(UNBOOKING_TIME);
+            List<BookedProduct> unbookedProducts = new ArrayList<>();
+            List<Map<String, Object>> bookedProducts = productRepository.getBookedProducts(BOOKED_TIME_IN_MINUTES);
 
             if (isEmpty(bookedProducts)) {
-                throw new ResourceNotFoundException("There are no products available to be unbooked.");
+                log.info("There are no products available to be unbooked.");
+                return unbookedProducts;
             }
 
             boolean productsUnbooked = bookedProducts.stream()
@@ -74,16 +81,15 @@ public class ProductServiceImpl implements ProductService {
                                     productRepository.unbookProductsInOrderDetails(orderId) > 0);
             if (productsUnbooked && ordersUpdated) {
                 log.info("The booked products are now available again.");
-                return bookedProducts.stream().map(row ->
+                unbookedProducts = bookedProducts.stream().map(row ->
                         BookedProduct.builder()
                                 .id((Integer) row.get(PRODUCT_ID))
                                 .name((String) row.get(NAME))
                                 .quantity((Integer) row.get(AMOUNT))
                                 .build()
                 ).collect(Collectors.toList());
-            } else {
-                throw new ResourceNotFoundException("Something happened, and the products were not unbooked.");
             }
+            return unbookedProducts;
         } catch (Exception e) {
             log.error("Something happened, and the products were not unbooked.");
             throw new ResourceNotFoundException(e.getMessage());

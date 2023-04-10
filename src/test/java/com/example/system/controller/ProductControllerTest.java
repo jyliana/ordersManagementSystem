@@ -3,7 +3,6 @@ package com.example.system.controller;
 import com.example.system.model.Category;
 import com.example.system.model.Product;
 import org.assertj.core.api.SoftAssertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -25,16 +24,10 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class ProductControllerTest {
-
     private static final String URL_PORT = "http://localhost:8080/";
     private static Integer createdProductId;
+    private final RestTemplate restTemplate = new RestTemplate();
 
-    private RestTemplate restTemplate;
-
-    @BeforeEach
-    void setUp() {
-        restTemplate = new RestTemplate();
-    }
 
     @Test
     @Timeout(value = 3000, unit = TimeUnit.MILLISECONDS)

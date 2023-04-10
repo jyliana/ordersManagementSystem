@@ -2,7 +2,6 @@ package com.example.system.controller;
 
 import com.example.system.model.User;
 import org.assertj.core.api.SoftAssertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.springframework.core.ParameterizedTypeReference;
@@ -22,12 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class UserControllerTest {
     private static final String URL_PORT = "http://localhost:8080/";
-    private RestTemplate restTemplate;
-
-    @BeforeEach
-    void setUp() {
-        restTemplate = new RestTemplate();
-    }
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Test
     @Timeout(value = 4000, unit = TimeUnit.MILLISECONDS)
