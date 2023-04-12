@@ -1,4 +1,4 @@
-package com.example.system.service;
+package com.example.system.service.impl;
 
 import com.example.system.exception.ResourceNotFoundException;
 import com.example.system.model.Order;
@@ -6,9 +6,12 @@ import com.example.system.model.User;
 import com.example.system.model.dto.BookedProduct;
 import com.example.system.model.dto.FullOrder;
 import com.example.system.model.enums.Status;
+import com.example.system.producer.InvoiceProducer;
 import com.example.system.repository.jpa.OrderJpaRepository;
 import com.example.system.repository.jpa.ProductJpaRepository;
+import com.example.system.service.OrderService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,12 +27,14 @@ import static com.example.system.service.constants.Constants.AN_ORDER_WITH_ID;
 import static com.example.system.service.constants.Constants.CANNOT_BE_CREATED;
 import static com.example.system.service.constants.Constants.DOES_NOT_EXIST;
 
+@Slf4j
 @Service("orderService")
 @AllArgsConstructor
 public class OrderServiceImpl implements OrderService {
 
     private OrderJpaRepository orderJpaRepository;
     private ProductJpaRepository productJpaRepository;
+    private InvoiceProducer producer;
 
     @Override
     public List<Order> getOrders() {
@@ -55,21 +60,24 @@ public class OrderServiceImpl implements OrderService {
                 throw new ResourceNotFoundException("The required products are not available.");
             }
 
-            Integer orderId = orderJpaRepository.createOrder(totalAmount, order.getStatus().name());
+            Order createdOrder = orderJpaRepository.createOrder(totalAmount, order.getStatus().name());
+            Integer orderId = createdOrder.getId();
             boolean updateOrderDetailsResult = order.getProducts()
                     .stream()
                     .allMatch(product -> updateProductAndOrderDetails(orderId, product, order.getStatus()));
             boolean updateOrdersHistoryResult = orderJpaRepository.updateOrdersHistory(userId, orderId) == 1;
 
             if (updateOrdersHistoryResult && updateOrderDetailsResult) {
-                return getOrder(orderId);
+                producer.sendOrderCreated(createdOrder);
+                return createdOrder;
             } else {
                 throw new ResourceNotFoundException(AN_ORDER_WITH_ID + orderId + CANNOT_BE_CREATED);
             }
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException(e.getMessage());
         } catch (Exception e) {
-            throw new ResourceNotFoundException("The order for user " + userId + CANNOT_BE_CREATED);
+            log.error("Some error has happened: {}", e.getMessage());
+            throw new ResourceNotFoundException(e.getMessage());
         }
     }
 

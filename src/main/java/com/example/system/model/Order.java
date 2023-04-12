@@ -1,6 +1,7 @@
 package com.example.system.model;
 
 import com.example.system.model.enums.Status;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,6 +29,7 @@ public class Order {
     private Integer id;
 
     @Column(name = "trade_date")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSSSSS")
     private Timestamp tradeDate;
 
     private Integer amount;

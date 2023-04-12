@@ -1,8 +1,9 @@
-package com.example.system.service;
+package com.example.system.service.impl;
 
 import com.example.system.exception.ResourceNotFoundException;
 import com.example.system.model.Category;
 import com.example.system.repository.CategoryRepository;
+import com.example.system.service.CategoryService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 

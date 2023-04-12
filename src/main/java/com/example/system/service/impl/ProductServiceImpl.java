@@ -1,4 +1,4 @@
-package com.example.system.service;
+package com.example.system.service.impl;
 
 import com.example.system.exception.ResourceNotFoundException;
 import com.example.system.model.Category;
@@ -8,6 +8,7 @@ import com.example.system.model.enums.Status;
 import com.example.system.repository.jpa.CategoryJpaRepository;
 import com.example.system.repository.jpa.OrderJpaRepository;
 import com.example.system.repository.jpa.ProductJpaRepository;
+import com.example.system.service.ProductService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.EnableScheduling;

@@ -23,8 +23,8 @@ public interface OrderJpaRepository extends JpaRepository<Order, Long> {
 
 
     @Transactional
-    @Query(value = "INSERT INTO orders (amount, status) VALUES (?, ?) RETURNING id", nativeQuery = true)
-    Integer createOrder(@Param("amount") Integer amount, @Param("status") String status);
+    @Query(value = "INSERT INTO orders (amount, status) VALUES (?, ?) RETURNING *", nativeQuery = true)
+    Order createOrder(@Param("amount") Integer amount, @Param("status") String status);
 
     @Modifying
     @Transactional
