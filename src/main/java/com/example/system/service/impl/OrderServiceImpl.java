@@ -73,8 +73,6 @@ public class OrderServiceImpl implements OrderService {
             } else {
                 throw new ResourceNotFoundException(AN_ORDER_WITH_ID + orderId + CANNOT_BE_CREATED);
             }
-        } catch (ResourceNotFoundException e) {
-            throw new ResourceNotFoundException(e.getMessage());
         } catch (Exception e) {
             log.error("Some error has happened: {}", e.getMessage());
             throw new ResourceNotFoundException(e.getMessage());

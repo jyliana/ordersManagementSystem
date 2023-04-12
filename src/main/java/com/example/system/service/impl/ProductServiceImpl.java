@@ -98,15 +98,17 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public Product createProduct(Map<String, Object> product) {
         String name = (String) product.get(NAME);
         Integer quantity = (Integer) product.get("quantity");
         try {
             List<Integer> categoryIds = getCategoryIds(product);
             if (allCategoriesExist(categoryIds)) {
-                Integer id = productRepository.createProduct(name, quantity);
+                Product createdProduct = productRepository.createProduct(name, quantity);
+                Integer id = createdProduct.getId();
                 categoryIds.forEach(categoryId -> productRepository.updateProductCategory(id, categoryId));
-                return getProduct(id);
+                return createdProduct;
             } else throw new ResourceNotFoundException("Something happened.");
         } catch (Exception e) {
             throw new ResourceNotFoundException("The product " + name + CANNOT_BE_CREATED);

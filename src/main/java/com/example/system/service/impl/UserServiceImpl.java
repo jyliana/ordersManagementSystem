@@ -29,8 +29,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User createUser(User user) {
         try {
-            Integer id = userJpaRepository.createUser(user.getName());
-            return getUser(id);
+            return userJpaRepository.createUser(user.getName());
         } catch (Exception e) {
             throw new ResourceNotFoundException("The user " + user.getName() + CANNOT_BE_CREATED);
         }

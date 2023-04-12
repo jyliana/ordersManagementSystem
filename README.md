@@ -78,15 +78,15 @@ Tests to cover the main logic
 
     {    
       "name":"Anti-Aging Cream with Bird's Nest Extract",
+      "quantity": 1500,
       "categories":[
         {
           "id": 4,
           "name": "Organic cosmetics" // Optional
         },{
-          "id": 3,
-          "name": "Face" // Optional
+          "id": 3         
         }
-      ]
+      ]      
     }
 
 **Create order:**

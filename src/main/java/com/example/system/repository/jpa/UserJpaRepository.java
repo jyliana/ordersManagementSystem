@@ -20,8 +20,8 @@ public interface UserJpaRepository extends JpaRepository<User, Long> {
     User getUser(Integer id);
 
     @Transactional
-    @Query(value = "INSERT INTO users (name) VALUES (:name) RETURNING id", nativeQuery = true)
-    Integer createUser(@Param("name") String name);
+    @Query(value = "INSERT INTO users (name) VALUES (:name) RETURNING *", nativeQuery = true)
+    User createUser(@Param("name") String name);
 
     @Query(value = "SELECT u.id, u.name FROM users u\n" +
             "LEFT JOIN orders_history h ON u.id=h.user_id\n" +

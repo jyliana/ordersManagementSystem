@@ -21,8 +21,8 @@ public interface CategoryJpaRepository extends JpaRepository<Category, Long> {
     Category getCategory(Integer id);
 
     @Transactional
-    @Query(value = "INSERT INTO categories (name) VALUES (:name) RETURNING id", nativeQuery = true)
-    Integer createCategory(@Param("name") String name);
+    @Query(value = "INSERT INTO categories (name) VALUES (:name) RETURNING *", nativeQuery = true)
+    Category createCategory(@Param("name") String name);
 
     @Query(value = "SELECT c.name,  SUM(od.amount) total FROM order_details od\n" +
             "JOIN products p ON p.id=od.product_id\n" +

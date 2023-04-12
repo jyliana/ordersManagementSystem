@@ -21,8 +21,8 @@ public interface ProductJpaRepository extends JpaRepository<Product, Long> {
     Product getProduct(Integer id);
 
     @Transactional
-    @Query(value = "INSERT INTO products (name, available_quantity) VALUES (:name, :quantity) RETURNING id", nativeQuery = true)
-    Integer createProduct(@Param("name") String name, @Param("quantity") Integer quantity);
+    @Query(value = "INSERT INTO products (name, available_quantity) VALUES (:name, :quantity) RETURNING *", nativeQuery = true)
+    Product createProduct(@Param("name") String name, @Param("quantity") Integer quantity);
 
     @Modifying
     @Transactional
