@@ -31,7 +31,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 @EnableScheduling
 @Slf4j
 public class ProductServiceImpl implements ProductService {
-    private static final long BOOKED_TIME_IN_MINUTES = 1;
+    private static final long BOOKED_TIME_IN_MINUTES = 15;
     private static final String PRODUCT_ID = "product_id";
     private static final String AMOUNT = "amount";
     private static final String NAME = "name";
